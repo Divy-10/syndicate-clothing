@@ -30,7 +30,8 @@ const allowedOrigins = [
   'http://elbrosyndicate.com',
   'https://www.elbrosyndicate.com',
   'http://www.elbrosyndicate.com',
-  'https://elbro-syndicate.vercel.app'
+  'https://elbro-syndicate.vercel.app',
+  'https://syndicate-clothing.vercel.app'
 ];
 
 const io = new Server(server, {
