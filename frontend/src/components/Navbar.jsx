@@ -40,7 +40,7 @@ export default function Navbar() {
 
       {/* CENTER: Brand Logo */}
       <div className="nav-logo">
-        <Link to="/">SYNDYCATE</Link>
+        <Link to="/">EL BRO SYNDICATE</Link>
       </div>
 
       {/* RIGHT SIDE: User Actions */}
@@ -59,7 +59,7 @@ export default function Navbar() {
             </Link>
           </>
         )}
-        
+
         {isAdmin && <Link to="/admin" className="admin-link">ADMIN</Link>}
 
         <Link to="/profile" state={{ activeTab: 'wishlist' }} className="wishlist-icon-link" aria-label="View Wishlist">
@@ -83,7 +83,7 @@ export default function Navbar() {
       </button>
 
       {/* MOBILE BACKDROP */}
-      <div 
+      <div
         className={`navbar__mobile-backdrop ${menuOpen ? 'navbar__mobile-backdrop--open' : ''}`}
         onClick={() => setMenuOpen(false)}
       ></div>
