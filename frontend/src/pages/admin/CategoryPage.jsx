@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import './CategoryPage.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -39,10 +40,32 @@ const CategoryPage = () => {
   };
 
   const deleteCategory = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this category?')) return;
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you want to delete this category?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it',
+      cancelButtonText: 'Cancel',
+      background: '#0a0a0a',
+      color: '#E1DCC9',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#B8B1A1'
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       await axios.delete(`${API_URL}/categories/delete/${id}`);
       fetchCats();
+      Swal.fire({
+        title: 'Deleted!',
+        text: 'Category has been deleted.',
+        icon: 'success',
+        background: '#0a0a0a',
+        color: '#E1DCC9',
+        confirmButtonColor: '#B8B1A1'
+      });
     } catch (err) {
       alert('Error deleting category');
     }

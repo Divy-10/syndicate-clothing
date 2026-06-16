@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import { useAuth } from '../../context/AuthContext';
 import '../../components/BarcodeLabel.css';
 import BarcodeLabel from '../../components/BarcodeLabel';
@@ -126,10 +127,32 @@ export default function Admin() {
   };
 
   const deleteProduct = async (productId) => {
-    if (!window.confirm('Delete this product?')) return;
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you want to delete this product?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it',
+      cancelButtonText: 'Cancel',
+      background: '#0a0a0a',
+      color: '#E1DCC9',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#B8B1A1'
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       await axios.delete(`${API_URL}/products/${productId}`);
       await fetchProducts();
+      Swal.fire({
+        title: 'Deleted!',
+        text: 'Product has been deleted.',
+        icon: 'success',
+        background: '#0a0a0a',
+        color: '#E1DCC9',
+        confirmButtonColor: '#B8B1A1'
+      });
     } catch {
       setProducts((prev) => prev.filter((p) => (p._id || p.id) !== productId));
     }
