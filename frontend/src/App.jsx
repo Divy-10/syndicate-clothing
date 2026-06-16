@@ -117,14 +117,10 @@ function AppRoutes() {
       <Route path="/contact" element={<Contact />} />
       <Route path="/shipping-returns" element={<ShippingReturns />} />
       <Route path="/size-guide" element={<SizeGuide />} />
+      <Route path="/products" element={<ProductsPage />} />
+      <Route path="/cart" element={<Cart />} />
 
       {/* Protected storefront features */}
-      <Route path="/products" element={
-        <ProtectedUserRoute><ProductsPage /></ProtectedUserRoute>
-      } />
-      <Route path="/cart" element={
-        <ProtectedUserRoute><Cart /></ProtectedUserRoute>
-      } />
       <Route path="/checkout" element={
         <ProtectedUserRoute><Checkout /></ProtectedUserRoute>
       } />
