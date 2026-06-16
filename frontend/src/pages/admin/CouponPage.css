@@ -1,0 +1,259 @@
+.coupon-admin-container {
+  padding: 20px 0;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 35px;
+}
+
+.page-header h1 {
+  font-size: 28px;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+}
+
+.page-header p {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.coupon-grid-layout {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+.coupon-form-card {
+  background: var(--white);
+  padding: 30px 24px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.coupon-form-card h2 {
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+.coupon-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group-coupon {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group-coupon label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  letter-spacing: 1px;
+}
+
+.form-group-coupon input,
+.form-group-coupon select {
+  width: 100%;
+  height: 45px;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+  background: #ffffff !important;
+  color: #1a1a1a !important;
+  transition: border-color 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.form-group-coupon input:focus,
+.form-group-coupon select:focus {
+  border-color: #000000;
+}
+
+
+.form-row-coupon {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.btn-create-coupon {
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  padding: 14px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-top: 10px;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-create-coupon:hover {
+  background-color: #222;
+}
+
+.btn-create-coupon:active {
+  transform: scale(0.98);
+}
+
+.btn-create-coupon:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.coupon-error {
+  color: #ff4757;
+  font-size: 12px;
+  margin-top: 15px;
+  font-weight: 600;
+}
+
+.coupon-success {
+  color: #2ed573;
+  font-size: 12px;
+  margin-top: 15px;
+  font-weight: 600;
+}
+
+/* List Card Styling */
+.coupon-list-card {
+  background: var(--white);
+  padding: 30px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.coupon-list-card h2 {
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+.btn-status {
+  padding: 5px 12px;
+  border: none;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+}
+
+.btn-status.active {
+  background: rgba(46, 213, 115, 0.1);
+  color: #2ed573;
+}
+
+.btn-status.inactive {
+  background: rgba(255, 71, 87, 0.1);
+  color: #ff4757;
+}
+
+.btn-status:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 900px) {
+  .coupon-grid-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Table styling for Coupon list */
+.admin-table-wrapper {
+  background: #ffffff;
+  border: 1px solid #eaeaea;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-table th {
+  padding: 16px 20px;
+  background: #fcfcfc;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #eaeaea;
+  color: #666666;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+}
+
+.admin-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #eaeaea;
+  font-size: 13px;
+  color: #333333;
+  font-family: 'Inter', sans-serif;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.btn-delete {
+  background: none;
+  border: none;
+  color: #ff4757;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.btn-delete:hover {
+  color: #000000;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+

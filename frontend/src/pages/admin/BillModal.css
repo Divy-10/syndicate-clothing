@@ -1,0 +1,152 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.modal-success-icon {
+  font-size: 50px;
+  color: #2ecc71;
+  margin-bottom: 20px;
+}
+
+.modal-content h3 {
+  margin-bottom: 10px;
+  font-size: 24px;
+}
+
+.modal-content p {
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-print-bill {
+  background: #000;
+  color: white;
+  padding: 15px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.btn-close {
+  background: #eee;
+  color: #333;
+  padding: 15px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* PRINTABLE BILL STYLE */
+.printable-bill {
+  display: none;
+  width: 80mm;
+  font-family: 'Courier New', Courier, monospace;
+  padding: 10px;
+  background: white;
+  color: black;
+}
+
+.bill-header {
+  text-align: center;
+}
+
+.bill-header h1 {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.bill-meta {
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.bill-divider {
+  text-align: center;
+  margin: 10px 0;
+}
+
+.bill-items {
+  width: 100%;
+}
+
+.bill-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin: 5px 0;
+}
+
+.bill-row--header {
+  font-weight: bold;
+  border-bottom: 1px dashed #000;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.bill-total {
+  text-align: right;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.bill-footer {
+  text-align: center;
+  font-size: 10px;
+  margin-top: 30px;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .modal-overlay {
+    background: transparent !important;
+    position: static !important;
+  }
+  .modal-content {
+    display: none !important;
+  }
+  .printable-bill {
+    display: block !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  .printable-bill, .printable-bill * {
+    visibility: visible;
+  }
+  .printable-bill {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}

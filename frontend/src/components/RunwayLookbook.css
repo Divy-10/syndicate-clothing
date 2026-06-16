@@ -1,0 +1,731 @@
+/* ==========================================================================
+   RunwayLookbook Stylesheet - Luxury 3D Lookbook Slider
+   ========================================================================== */
+
+.runway-lookbook {
+  background-color: #000000;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: 120px 0;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+.runway-lookbook__container {
+  display: grid;
+  grid-template-columns: 320px 1fr 300px;
+  gap: 60px;
+  align-items: center;
+  position: relative;
+}
+
+/* ==========================================================================
+   Left Panel: Editorial Info & Navigation
+   ========================================================================== */
+.runway-lookbook__editorial-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+  align-self: start;
+  padding-top: 20px;
+  min-height: 440px;
+  z-index: 12;
+}
+
+.editorial-meta-box {
+  margin-bottom: 40px;
+}
+
+.editorial-eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  letter-spacing: 5px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 24px;
+}
+
+.editorial-season {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(24px, 2.5vw, 32px);
+  color: var(--text-primary);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.editorial-description {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  font-weight: 300;
+  margin: 0;
+}
+
+/* Fade animations for look switches */
+.editorial-season-fade,
+.editorial-desc-fade {
+  animation: lookbookFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes lookbookFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Navigation */
+.editorial-navigation {
+  display: flex;
+  align-items: center;
+  margin-top: auto;
+  padding-bottom: 24px;
+}
+
+.nav-index-indicator {
+  font-family: 'Playfair Display', serif;
+  display: flex;
+  align-items: baseline;
+  color: var(--text-primary);
+  font-size: 20px;
+  letter-spacing: 2px;
+  order: 1;
+}
+
+.current-index {
+  font-weight: 600;
+}
+
+.index-separator {
+  margin: 0 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+.total-index {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.nav-btn--prev {
+  order: 2;
+  margin-left: auto;
+}
+
+.nav-btn--next {
+  order: 3;
+  margin-left: 12px;
+}
+
+.nav-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-btn:hover {
+  background-color: var(--text-primary);
+  color: #000000;
+  border-color: var(--text-primary);
+  transform: scale(1.05);
+}
+
+/* Scroll progress track */
+.editorial-scroll-track {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(225, 220, 201, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.editorial-scroll-bar {
+  height: 100%;
+  background-color: var(--text-primary);
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+
+/* ==========================================================================
+   Center Panel: 3D Depth-of-Field Runway Slide Deck
+   ========================================================================== */
+.runway-lookbook__runway-area {
+  position: relative;
+  height: 520px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  /* CSS custom variables for translations */
+  --translate-step-prev: 140px;
+  --translate-step-next: 200px;
+  --translate-y-step: 18px;
+}
+
+.runway-lookbook__runway-area:active {
+  cursor: grabbing;
+}
+
+.runway-model-wrapper {
+  position: absolute;
+  width: 320px;
+  height: 460px;
+  left: calc(50% - 160px);
+  top: 30px;
+  transform-origin: center bottom;
+  will-change: transform, filter, opacity;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+              filter 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+              opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Active Model styles */
+.runway-model-wrapper--active {
+  z-index: 10;
+}
+
+.runway-model-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+  filter: contrast(1.03) brightness(0.95);
+  transition: border-color 0.4s ease;
+}
+
+.runway-model-wrapper--active .runway-model-image {
+  border-color: rgba(225, 220, 201, 0.3);
+}
+
+/* Label on active model */
+.runway-model-label {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  border-radius: 4px;
+  animation: lookbookFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.runway-label-tag {
+  font-family: 'Playfair Display', serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Interactive drag hint */
+.runway-drag-hint {
+  position: absolute;
+  bottom: -40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0.4;
+  transition: opacity 0.4s ease;
+}
+
+.runway-lookbook__runway-area:hover .runway-drag-hint {
+  opacity: 0.8;
+}
+
+.drag-hint-pill {
+  width: 28px;
+  height: 6px;
+  border: 1px solid var(--text-primary);
+  border-radius: 3px;
+  position: relative;
+}
+
+.drag-hint-pill::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  width: 4px;
+  height: 4px;
+  background-color: var(--text-primary);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  animation: dragDotAnim 2s infinite ease-in-out;
+}
+
+@keyframes dragDotAnim {
+  0%, 100% {
+    left: 3px;
+  }
+  50% {
+    left: 19px;
+  }
+}
+
+.drag-hint-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+
+/* ==========================================================================
+   Right Panel: Sidebar Products list
+   ========================================================================== */
+.runway-lookbook__sidebar-panel {
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+  padding-top: 20px;
+  min-height: 440px;
+  z-index: 12;
+  animation: productsSlideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes productsSlideIn {
+  from {
+    opacity: 0;
+    transform: translate3d(20px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.sidebar-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  letter-spacing: 5px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 28px;
+  display: block;
+}
+
+.sidebar-product-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 30px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(225, 220, 201, 0.15) transparent;
+}
+
+/* Custom Scrollbar for Webkit Browsers */
+.sidebar-product-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-product-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-product-list::-webkit-scrollbar-thumb {
+  background-color: rgba(225, 220, 201, 0.15);
+  border-radius: 2px;
+}
+
+.sidebar-product-list::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(225, 220, 201, 0.35);
+}
+
+.sidebar-prod-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(225, 220, 201, 0.05);
+  border: 1px dashed rgba(225, 220, 201, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 500;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.sidebar-product-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  border-radius: 12px;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+}
+
+.sidebar-product-card:hover {
+  transform: translate3d(5px, 0, 0);
+  border-color: rgba(225, 220, 201, 0.3);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-prod-img-box {
+  width: 70px;
+  height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.sidebar-prod-img-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.sidebar-product-card:hover .sidebar-prod-img-box img {
+  transform: scale(1.08);
+}
+
+.sidebar-prod-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.sidebar-product-card:hover .sidebar-prod-overlay {
+  opacity: 1;
+}
+
+.sidebar-arrow-icon {
+  color: var(--text-primary);
+  transform: translate3d(-10px, 0, 0);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar-product-card:hover .sidebar-arrow-icon {
+  transform: translate3d(0, 0, 0);
+}
+
+.sidebar-prod-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-prod-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.sidebar-prod-price {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Sidebar Footer CTA */
+.sidebar-cta-box {
+  margin-top: auto;
+  border-top: 1px solid var(--border-color);
+  padding-top: 24px;
+}
+
+.sidebar-shop-all {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: letter-spacing 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar-shop-all:hover {
+  letter-spacing: 3px;
+  color: #ffffff;
+}
+
+
+/* ==========================================================================
+   Responsive Styling Rules
+   ========================================================================== */
+
+@media (max-width: 1280px) {
+  .runway-lookbook__container {
+    grid-template-columns: 280px 1fr 260px;
+    gap: 30px;
+  }
+
+  .runway-model-wrapper {
+    width: 270px;
+    height: 390px;
+  }
+
+  .runway-lookbook__runway-area {
+    height: 440px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .runway-lookbook {
+    padding: 80px 0;
+  }
+
+  .runway-lookbook__container {
+    grid-template-columns: 1fr;
+    gap: 50px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+
+  .runway-lookbook__editorial-panel {
+    min-height: auto;
+    text-align: center;
+    align-items: center;
+    padding: 0;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  .runway-lookbook__runway-area {
+    min-width: 0;
+  }
+
+  .runway-lookbook__sidebar-panel {
+    min-width: 0;
+  }
+
+  .editorial-meta-box {
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+  }
+
+  .editorial-eyebrow {
+    font-size: 9px;
+    letter-spacing: 4px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .editorial-season {
+    font-size: 24px;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+    text-align: center;
+  }
+
+  .editorial-description {
+    max-width: 600px;
+    margin: 0 auto;
+    font-size: 13px;
+    line-height: 1.6;
+    text-align: center;
+    width: 100%;
+  }
+
+  .editorial-navigation {
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto 10px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    padding-bottom: 10px;
+  }
+
+  .nav-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .nav-btn--prev {
+    order: 1;
+    margin-left: 0;
+  }
+
+  .nav-index-indicator {
+    order: 2;
+    margin: 0;
+  }
+
+  .nav-btn--next {
+    order: 3;
+    margin-left: 0;
+  }
+
+  .editorial-scroll-track {
+    width: 120px;
+    height: 2px;
+    background-color: rgba(225, 220, 201, 0.1);
+    margin: 10px auto 0;
+  }
+
+  .runway-lookbook__runway-area {
+    height: 480px;
+    overflow: hidden;
+    width: 100%;
+    --translate-step-prev: 110px;
+    --translate-step-next: 130px;
+    --translate-y-step: 12px;
+  }
+
+  .runway-model-wrapper {
+    width: 290px;
+    height: 410px;
+    left: calc(50% - 145px);
+    top: 35px;
+  }
+
+  .runway-lookbook__sidebar-panel {
+    min-height: auto;
+    width: 100%;
+  }
+
+  .sidebar-title {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  /* Display product cards horizontally on mobile/tablet */
+  .sidebar-product-list {
+    flex-direction: row;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 15px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(225, 220, 201, 0.1) transparent;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .sidebar-product-card {
+    flex: 1;
+    min-width: 260px;
+  }
+
+  .sidebar-cta-box {
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .sidebar-shop-all {
+    justify-content: center;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .runway-lookbook {
+    padding: 60px 0;
+  }
+
+  .editorial-season {
+    font-size: 18px !important;
+  }
+
+  .editorial-description {
+    font-size: 12px !important;
+    line-height: 1.6;
+    padding: 0 10px;
+  }
+
+  .runway-lookbook__runway-area {
+    height: 380px;
+    overflow: hidden;
+    width: 100%;
+    --translate-step-prev: 70px;
+    --translate-step-next: 85px;
+    --translate-y-step: 8px;
+  }
+
+  .runway-model-wrapper {
+    width: 220px;
+    height: 310px;
+    left: calc(50% - 110px);
+    top: 35px;
+  }
+
+  .sidebar-product-list {
+    gap: 12px;
+  }
+
+  .sidebar-product-card {
+    min-width: 230px;
+    padding: 12px;
+  }
+
+  .sidebar-prod-img-box {
+    width: 50px;
+    height: 70px;
+  }
+
+  .sidebar-prod-name {
+    font-size: 13px;
+  }
+
+  .sidebar-prod-price {
+    font-size: 11px;
+  }
+}

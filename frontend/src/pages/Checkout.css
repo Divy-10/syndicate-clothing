@@ -1,0 +1,226 @@
+.checkout-page {
+  background: var(--bg-primary);
+  min-height: 100vh;
+}
+
+.checkout-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 160px 20px 100px;
+}
+
+.checkout-card {
+  width: 100%;
+  max-width: 700px;
+  background: var(--bg-secondary);
+  padding: 50px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.checkout-header {
+  text-align: center;
+  margin-bottom: 45px;
+}
+
+.checkout-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.checkout-header p {
+  color: var(--text-secondary);
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.checkout-form {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input-group label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-primary);
+}
+
+.checkout-form input {
+  width: 100%;
+  padding: 14px 18px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  border-radius: 4px;
+  transition: var(--transition-fast);
+}
+
+.checkout-form input:focus {
+  border-color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+/* Override browser autofill style overrides */
+.checkout-form input:-webkit-autofill,
+.checkout-form input:-webkit-autofill:hover, 
+.checkout-form input:-webkit-autofill:focus, 
+.checkout-form input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-primary) inset !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* TEXTAREA */
+.address-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 15px 18px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  resize: vertical;
+  outline: none;
+  border-radius: 4px;
+  transition: var(--transition-fast);
+  box-sizing: border-box;
+}
+
+.address-textarea:focus {
+  border-color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+.checkout-options {
+  margin: 8px 0;
+}
+
+.checkbox-container {
+  display: block;
+  position: relative;
+  padding-left: 30px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-secondary);
+  user-select: none;
+  letter-spacing: 0.5px;
+}
+
+.checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 18px;
+  width: 18px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+}
+
+.checkbox-container:hover input ~ .checkmark {
+  background-color: var(--accent-hover);
+}
+
+.checkbox-container input:checked ~ .checkmark {
+  background-color: var(--accent-hover);
+  border-color: var(--text-primary);
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.checkbox-container .checkmark:after {
+  left: 6px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--text-primary);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.btn-place-order {
+  width: 100%;
+  background: var(--accent-hover);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 4px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-place-order:hover:not(:disabled) {
+  background: #523a1c;
+  border-color: var(--text-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.btn-place-order:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+@media (max-width: 600px) {
+  .checkout-card {
+    padding: 30px 20px;
+  }
+  
+  .input-grid {
+    grid-template-columns: 1fr;
+  }
+}

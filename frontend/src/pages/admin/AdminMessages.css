@@ -1,0 +1,90 @@
+.admin-messages-container {
+  padding: 40px;
+  background: #f9f9f9;
+  min-height: 100%;
+}
+
+.admin-messages__header {
+  margin-bottom: 40px;
+}
+
+.admin-messages__header h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.admin-messages__header p {
+  color: #666;
+}
+
+.msg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.msg-card {
+  background: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+}
+
+.msg-card:hover {
+  transform: translateY(-2px);
+}
+
+.msg-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.msg-card__header strong {
+  font-size: 18px;
+}
+
+.msg-email {
+  color: #888;
+  font-size: 14px;
+}
+
+.msg-date {
+  color: #bbb;
+  font-size: 12px;
+}
+
+.msg-card__body p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #444;
+  white-space: pre-wrap;
+}
+
+.admin-messages__loading, .no-msgs {
+  text-align: center;
+  padding: 50px;
+  color: #666;
+}
+
+.msg-delete-btn {
+  background: transparent;
+  border: none;
+  color: #ff4d4f;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.msg-delete-btn:hover {
+  background: rgba(255, 77, 79, 0.1);
+  color: #d9363e;
+}

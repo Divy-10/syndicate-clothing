@@ -1,0 +1,108 @@
+.category-admin-container {
+  padding: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 40px;
+}
+
+.page-header h1 {
+  font-size: 32px;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.page-header p {
+  color: #888;
+}
+
+.add-category-card {
+  background: white;
+  padding: 30px;
+  border: 1px solid #eee;
+  margin-bottom: 40px;
+}
+
+.add-category-form-inner {
+  display: flex;
+  gap: 15px;
+}
+
+.add-category-card input {
+  flex: 1;
+  padding: 15px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+  outline: none;
+  transition: 0.3s;
+}
+
+.add-category-card input:focus {
+  border-color: #000;
+}
+
+.add-category-card button {
+  background: #000;
+  color: #fff;
+  padding: 0 30px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.category-error {
+  color: #ff4757;
+  font-size: 13px;
+  margin-top: 15px;
+}
+
+.admin-table-wrapper {
+  background: white;
+  border: 1px solid #eee;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: 20px;
+  background: #fcfcfc;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #eee;
+}
+
+.admin-table td {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  font-size: 15px;
+}
+
+.btn-delete {
+  background: none;
+  border: none;
+  color: #ff4757;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.btn-delete:hover {
+  color: #000;
+}
+
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.font-bold { font-weight: 700; }

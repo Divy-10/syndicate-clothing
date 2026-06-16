@@ -1,0 +1,280 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ========================================
+   EL BRO SYNDICATE — LUXURY DESIGN SYSTEM
+   ======================================== */
+
+:root {
+  color-scheme: dark;
+  
+  /* New Semantic Variables */
+  --bg-primary: #000000;
+  --bg-secondary: #1F150C;
+  --accent-hover: #A27B5C;
+  --text-primary: #E1DCC9;
+  --text-secondary: #B8B1A1;
+  --border-color: rgba(225, 220, 201, 0.15);
+
+  /* Legacy names mapped to new theme for backward compatibility */
+  --black: #E1DCC9;
+  --white: #000000;
+  --light-gray: rgba(225, 220, 201, 0.15);
+  --mid-gray: #B8B1A1;
+  --dark-gray: #B8B1A1;
+  --faded-gray: #1F150C;
+  --transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--bg-primary);
+  overflow-x: hidden;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ========================================
+   TYPOGRAPHY
+   ======================================== */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text-primary);
+}
+
+h1 {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  letter-spacing: 4px;
+}
+
+h2 {
+  font-size: clamp(1.8rem, 3.5vw, 2.2rem);
+  letter-spacing: 3px;
+  font-weight: 600;
+}
+
+h3 {
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+  font-weight: 600;
+}
+
+p {
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.8px;
+  color: var(--text-secondary);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: var(--transition-fast);
+}
+
+/* ========================================
+   LUXURY BUTTONS
+   ======================================== */
+
+.btn-luxury {
+  display: inline-block;
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 14px 36px;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 3px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.btn-luxury:hover {
+  background: var(--accent-hover);
+  border-color: var(--text-primary);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+.btn-luxury-filled {
+  display: inline-block;
+  background: var(--accent-hover);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 16px 40px;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 3px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  width: 100%;
+  text-align: center;
+  border-radius: 4px;
+}
+
+.btn-luxury-filled:hover {
+  background: #523a1c;
+  border-color: var(--text-primary);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* ========================================
+   EDITORIAL IMAGE HOVER
+   ======================================== */
+
+.product-image-container {
+  overflow: hidden;
+  position: relative;
+  background-color: var(--light-gray);
+}
+
+.product-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition);
+  transform: scale(1);
+}
+
+.product-image-container:hover img {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+/* ========================================
+   LAYOUT UTILITIES
+   ======================================== */
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 16px;
+  }
+}
+
+.section-spacing {
+  padding: 100px 0;
+}
+
+/* ========================================
+   SCROLLBAR
+   ======================================== */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--white);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--dark-gray);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--black);
+}
+
+/* ========================================
+   SELECTION
+   ======================================== */
+
+::selection {
+  background: var(--black);
+  color: var(--white);
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease forwards;
+}
+
+/* ========================================
+   BARCODE PRINT STYLES
+   ======================================== */
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .barcode-print-area,
+  .barcode-print-area * {
+    visibility: visible;
+  }
+
+  .barcode-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 58mm;
+    padding: 4mm;
+  }
+}

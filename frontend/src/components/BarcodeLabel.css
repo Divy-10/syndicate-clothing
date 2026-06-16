@@ -1,0 +1,123 @@
+.barcode-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.barcode-modal {
+  background: var(--white);
+  padding: 48px;
+  max-width: 420px;
+  width: 90%;
+  position: relative;
+}
+
+.barcode-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--black);
+  transition: var(--transition-fast);
+  line-height: 1;
+}
+
+.barcode-modal__close:hover {
+  opacity: 0.5;
+}
+
+.barcode-modal__title {
+  font-size: 11px;
+  letter-spacing: 3px;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+/* The actual print area */
+.barcode-label {
+  border: 1px solid var(--light-gray);
+  padding: 24px 20px;
+  text-align: center;
+  background: var(--white);
+}
+
+.barcode-label__brand {
+  font-size: 10px;
+  letter-spacing: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.barcode-label__divider {
+  width: 40px;
+  height: 1px;
+  background: var(--black);
+  margin: 0 auto 12px;
+}
+
+.barcode-label__product-name {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.barcode-label__price {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.barcode-label__sku {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--dark-gray);
+  margin-bottom: 12px;
+}
+
+.barcode-label__barcode {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+.barcode-modal__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.barcode-modal__actions .btn-luxury {
+  flex: 1;
+  text-align: center;
+  font-size: 10px;
+  padding: 12px 16px;
+}
+
+/* Print-specific overrides */
+@media print {
+  .barcode-label {
+    border: none;
+    padding: 4mm;
+  }
+
+  .barcode-label__brand {
+    font-size: 8px;
+  }
+
+  .barcode-label__product-name {
+    font-size: 9px;
+  }
+}

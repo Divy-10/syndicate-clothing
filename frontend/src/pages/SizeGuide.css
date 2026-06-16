@@ -1,0 +1,145 @@
+.size-guide-page {
+  background: var(--bg-primary);
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.size-guide-container {
+  padding: 160px 6% 100px;
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.size-guide-header {
+  text-align: center;
+  margin-bottom: 80px;
+}
+
+.size-guide-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  line-height: 1.1;
+}
+
+.size-guide-divider {
+  width: 60px;
+  height: 2px;
+  background: var(--accent-hover);
+  margin: 0 auto 20px;
+}
+
+.size-guide-subtitle {
+  font-family: 'Inter', sans-serif;
+  color: var(--text-secondary);
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: 300;
+}
+
+.size-guide-content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.size-guide-card {
+  padding: 50px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.size-guide-card h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.size-guide-card .intro-text {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 35px;
+  max-width: 800px;
+  font-weight: 300;
+}
+
+.measuring-tips-card {
+  padding: 40px 50px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.measuring-tips-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: var(--text-primary);
+  margin-bottom: 30px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+}
+
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+.tip-item h4 {
+  font-family: 'Playfair Display', serif;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.tip-item p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+
+@media (max-width: 900px) {
+  .tips-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .size-guide-container {
+    padding: 120px 4% 60px;
+  }
+
+  .size-guide-header {
+    margin-bottom: 50px;
+  }
+
+  .size-guide-card,
+  .measuring-tips-card {
+    padding: 30px 20px;
+  }
+}

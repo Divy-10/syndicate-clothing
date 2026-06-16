@@ -1,0 +1,125 @@
+.admin-layout {
+  /* Scope theme variables for the light layout area */
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --bg-primary: #ffffff;
+  --bg-secondary: #fcfcfc;
+  --border-color: #eaeaea;
+  --white: #ffffff;
+  --black: #000000;
+
+  color-scheme: light !important; /* Force light mode native controls (calendars, select boxes, etc.) */
+
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f5f5; /* Light grey background for content */
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+}
+
+/* Ensure text is clearly visible (dark) in all admin inputs, selects, and textareas */
+.admin-layout input,
+.admin-layout select,
+.admin-layout textarea {
+  color: #1a1a1a !important;
+  background-color: #ffffff !important;
+}
+
+/* Ensure readable placeholder colors in admin fields */
+.admin-layout input::placeholder,
+.admin-layout textarea::placeholder {
+  color: #888888 !important;
+}
+
+
+.admin-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.admin-header {
+  background-color: #ffffff;
+  padding: 20px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.admin-breadcrumb {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-secondary);
+}
+
+.admin-profile {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.admin-profile span {
+  letter-spacing: 0.5px;
+}
+
+.admin-logout-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 10px 20px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-logout-btn:hover {
+  background-color: var(--text-primary);
+  color: #ffffff;
+  border-color: var(--text-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.admin-content-area {
+  padding: 32px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .admin-layout {
+    flex-direction: column;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    padding: 16px;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .admin-profile {
+    width: 100%;
+    justify-content: space-between;
+    gap: 15px;
+  }
+
+  .admin-content-area {
+    padding: 16px;
+  }
+}
+
