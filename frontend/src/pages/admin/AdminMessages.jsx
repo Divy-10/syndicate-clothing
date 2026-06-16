@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Trash2 } from 'lucide-react';
 import './AdminMessages.css';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 const AdminMessages = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,7 +15,7 @@ const AdminMessages = () => {
 
   const fetchMessages = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/contact/messages');
+      const res = await axios.get(`${API_URL}/contact/messages`);
       setMessages(res.data);
       setLoading(false);
     } catch (err) {
@@ -25,7 +27,7 @@ const AdminMessages = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this message?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/contact/messages/${id}`);
+      await axios.delete(`${API_URL}/contact/messages/${id}`);
       setMessages(prev => prev.filter(m => m._id !== id));
     } catch (err) {
       console.error("Error deleting message:", err);
