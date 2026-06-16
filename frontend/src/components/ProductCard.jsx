@@ -17,7 +17,7 @@ export default function ProductCard({ product, size = 'normal' }) {
 
   let displayImage = product.images?.[0] || product.image;
 
-  if (displayImage && displayImage.startsWith('/')) {
+  if (displayImage && displayImage.startsWith('/uploads/')) {
     displayImage = `${BASE_URL}${displayImage}`;
   }
 

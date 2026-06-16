@@ -150,7 +150,7 @@ const Cart = () => {
                     <div className="cart-item-row__image">
                       {item.images?.length > 0 ? (
                         <img 
-                          src={item.images[0].startsWith('/') ? `${API_URL.replace('/api', '')}${item.images[0]}` : item.images[0]} 
+                          src={item.images[0].startsWith('/uploads/') ? `${API_URL.replace('/api', '')}${item.images[0]}` : item.images[0]} 
                           alt={item.name} 
                         />
                       ) : (

@@ -198,7 +198,7 @@ export default function ProductDetail() {
                   <SwiperSlide key={i}>
                     <div className="product-detail__gallery-image product-image-container">
                       <img
-                        src={img.startsWith('/') ? `${API_URL.replace('/api', '')}${img}` : img}
+                        src={img.startsWith('/uploads/') ? `${API_URL.replace('/api', '')}${img}` : img}
                         alt={`${product.name} view ${i + 1}`}
                         loading="lazy"
                       />
@@ -394,7 +394,7 @@ export default function ProductDetail() {
                     <div className="image-wrapper">
                       {item.images && item.images.length > 0 ? (
                         <img 
-                          src={item.images[0].startsWith('/') ? `${API_URL.replace('/api', '')}${item.images[0]}` : item.images[0]} 
+                          src={item.images[0].startsWith('/uploads/') ? `${API_URL.replace('/api', '')}${item.images[0]}` : item.images[0]} 
                           alt={item.name} 
                         />
                       ) : (

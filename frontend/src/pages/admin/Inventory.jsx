@@ -191,7 +191,7 @@ export default function Admin() {
                        : Number(product.stock) || 0)
                     : 0;
                   let imageUrl = product.images?.[0] || 'https://via.placeholder.com/50';
-                  if (imageUrl.startsWith('/')) {
+                  if (imageUrl.startsWith('/uploads/')) {
                     imageUrl = `${API_URL.replace('/api', '')}${imageUrl}`;
                   }
                   return (

@@ -97,7 +97,7 @@ export default function RunwayLookbook() {
   // Dynamically generate looks from database products
   const runwayLooks = dbProducts.map((prod, index) => {
     let prodImage = prod.images?.[0] || prod.image || '/assets/images/luxury-shop.png';
-    if (prodImage && prodImage.startsWith('/')) {
+    if (prodImage && prodImage.startsWith('/uploads/')) {
       prodImage = `${BASE_URL}${prodImage}`;
     }
 
@@ -331,7 +331,7 @@ export default function RunwayLookbook() {
             {activeLooks[currentActiveIndex].products.map((prod) => {
               const prodId = prod._id || prod.id;
               let displayImage = prod.images?.[0] || prod.image;
-              if (displayImage && displayImage.startsWith('/')) {
+              if (displayImage && displayImage.startsWith('/uploads/')) {
                 displayImage = `${BASE_URL}${displayImage}`;
               }
               return (
