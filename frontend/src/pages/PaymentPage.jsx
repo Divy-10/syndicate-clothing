@@ -18,13 +18,13 @@ const PaymentPage = () => {
   // Get address from navigation state
   const address = location.state?.address;
 
-  // ✅ Fix: Move navigation logic into useEffect
+  // ✅ Fix: Verify address and cart only on mount to prevent redirect race condition when cart is cleared
   useEffect(() => {
     if (!address || cart.length === 0) {
       console.log("Missing address or empty cart, redirecting...");
       navigate('/cart');
     }
-  }, [address, cart.length, navigate]);
+  }, []);
 
   if (!address || cart.length === 0) return null;
 

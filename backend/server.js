@@ -26,6 +26,10 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
+  'http://localhost:5174',
+  'http://127.0.0.1:5174',
+  'http://localhost:5175',
+  'http://127.0.0.1:5175',
   'https://elbrosyndicate.com',
   'http://elbrosyndicate.com',
   'https://www.elbrosyndicate.com',
@@ -71,6 +75,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const Order = require('./models/Order');
 const Address = require('./models/Address');
 const Product = require('./models/Product');
+const delhivery = require('./services/delhivery');
 
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
@@ -102,7 +107,7 @@ app.post('/api/orders/place', async (req, res) => {
       shippingAddress,
       couponCode,
       discountAmount: discountAmount || 0,
-      paymentMethod: 'COD' // Set to COD by default
+      paymentMethod: 'Prepaid'
     });
 
     const savedOrder = await newOrder.save();
@@ -120,10 +125,57 @@ app.post('/api/orders/place', async (req, res) => {
     await Promise.all(stockUpdates);
     console.log("✅ STOCK UPDATED FOR ALL ITEMS");
 
+    // 4. DELHIvery Shipment Booking Integration
+    console.log("🚚 Registering shipment with Delhivery...");
+    try {
+      const delhiveryRes = await delhivery.createShipment(savedOrder);
+      if (delhiveryRes && delhiveryRes.rm_errors) {
+        console.error("❌ Delhivery Validation Errors:", delhiveryRes.rm_errors);
+        savedOrder.delhiveryLogs.push({
+          status: 'Failed',
+          message: `Validation Error: ${JSON.stringify(delhiveryRes.rm_errors)}`
+        });
+      } else if (delhiveryRes && delhiveryRes.packages && delhiveryRes.packages.length > 0) {
+        const pkg = delhiveryRes.packages[0];
+        if (pkg.status === 'Success' && pkg.waybill) {
+          savedOrder.awb = pkg.waybill;
+          savedOrder.delhiveryStatus = 'Manifested';
+          savedOrder.delhiveryLabelUrl = delhivery.getPackingSlipUrl(pkg.waybill);
+          savedOrder.status = 'Confirmed';
+          savedOrder.delhiveryLogs.push({
+            status: 'Success',
+            message: `Shipment created in Delhivery successfully. AWB: ${pkg.waybill}`
+          });
+          console.log(`✅ Delhivery Shipment Registered. AWB: ${pkg.waybill}`);
+        } else {
+          console.warn("⚠️ Delhivery package booking status other than Success:", pkg.remarks);
+          savedOrder.delhiveryLogs.push({
+            status: 'Failed',
+            message: Array.isArray(pkg.remarks) ? pkg.remarks.join(" | ") : (pkg.remarks || 'Package booking failed')
+          });
+        }
+      } else {
+        console.warn("⚠️ Delhivery response did not contain packages:", delhiveryRes);
+        savedOrder.delhiveryLogs.push({
+          status: 'Failed',
+          message: JSON.stringify(delhiveryRes)
+        });
+      }
+      await savedOrder.save();
+    } catch (dErr) {
+      console.error("❌ Delhivery booking exception:", dErr);
+      savedOrder.delhiveryLogs.push({
+        status: 'Error',
+        message: dErr.message
+      });
+      await savedOrder.save();
+    }
+
     res.status(200).json({ 
       success: true, 
       orderId: savedOrder._id, 
-      message: "Order placed and stock updated!" 
+      awb: savedOrder.awb,
+      message: "Order placed and Delhivery shipment registered!" 
     });
 
   } catch (error) {
@@ -131,6 +183,117 @@ app.post('/api/orders/place', async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
+// ROUTE: Get Live Delhivery Tracking Info for Users
+app.get('/api/orders/:id/track', async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    if (!order.awb) {
+      return res.status(400).json({ message: 'Tracking not available for this order. No AWB assigned.' });
+    }
+
+    const trackingData = await delhivery.getTrackingDetails(order.awb);
+    res.json(trackingData);
+  } catch (error) {
+    console.error('Error fetching live tracking details:', error);
+    res.status(500).json({ message: 'Error retrieving tracking details' });
+  }
+});
+
+// ROUTE: Manual Admin Delhivery Status Sync
+app.post('/api/admin/orders/:id/delhivery-sync', async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    if (!order.awb) {
+      return res.status(400).json({ message: 'Order has no AWB number' });
+    }
+
+    const trackingRes = await delhivery.getTrackingDetails(order.awb);
+    if (trackingRes && trackingRes.ShipmentData && trackingRes.ShipmentData.length > 0) {
+      const shipData = trackingRes.ShipmentData[0].Shipment;
+      const statusInfo = shipData.Status?.Status || 'Unknown';
+      
+      order.delhiveryStatus = statusInfo;
+      
+      // Map Delhivery status to website order status
+      const lowerStatus = statusInfo.toLowerCase();
+      if (lowerStatus.includes('delivered')) {
+        order.status = 'Delivered';
+      } else if (lowerStatus.includes('in transit') || lowerStatus.includes('transit') || lowerStatus.includes('dispatched') || lowerStatus.includes('out for delivery')) {
+        order.status = 'Transit';
+      } else if (lowerStatus.includes('manifested') || lowerStatus.includes('pending')) {
+        order.status = 'Confirmed';
+      } else if (lowerStatus.includes('cancelled') || lowerStatus.includes('returned') || lowerStatus.includes('rto')) {
+        order.status = 'Cancelled';
+      }
+      
+      order.delhiveryLogs.push({
+        status: 'Sync',
+        message: `Manually synced status: ${statusInfo}`
+      });
+      
+      await order.save();
+      return res.json({ success: true, status: order.status, delhiveryStatus: order.delhiveryStatus, trackingData: trackingRes });
+    }
+    
+    res.status(400).json({ message: 'No tracking data returned from Delhivery' });
+  } catch (error) {
+    console.error('Error syncing order status:', error);
+    res.status(500).json({ message: 'Failed to sync status' });
+  }
+});
+
+// ROUTE: Delhivery Webhook Receiver for Automatic Syncs
+app.post('/api/delhivery/webhook', async (req, res) => {
+  try {
+    const payload = req.body;
+    console.log('Delhivery Webhook Payload Received:', JSON.stringify(payload));
+    
+    const waybill = payload.waybill || payload.awb || (payload.ShipmentData && payload.ShipmentData[0]?.Shipment?.Waybill);
+    if (!waybill) {
+      return res.status(400).json({ success: false, message: 'No waybill found in payload' });
+    }
+    
+    const order = await Order.findOne({ awb: waybill });
+    if (!order) {
+      return res.status(404).json({ success: false, message: `No order found matching AWB: ${waybill}` });
+    }
+    
+    const statusInfo = payload.status || payload.Status || (payload.ShipmentData && payload.ShipmentData[0]?.Shipment?.Status?.Status) || 'Updated';
+    order.delhiveryStatus = statusInfo;
+    
+    const lowerStatus = statusInfo.toLowerCase();
+    if (lowerStatus.includes('delivered')) {
+      order.status = 'Delivered';
+    } else if (lowerStatus.includes('in transit') || lowerStatus.includes('transit') || lowerStatus.includes('dispatched') || lowerStatus.includes('out for delivery')) {
+      order.status = 'Transit';
+    } else if (lowerStatus.includes('manifested') || lowerStatus.includes('pending')) {
+      order.status = 'Confirmed';
+    } else if (lowerStatus.includes('cancelled') || lowerStatus.includes('returned') || lowerStatus.includes('rto')) {
+      order.status = 'Cancelled';
+    }
+    
+    order.delhiveryLogs.push({
+      status: 'Webhook',
+      message: `Automatic webhook status update: ${statusInfo}`
+    });
+    
+    await order.save();
+    console.log(`✅ Order ${order._id} status synced automatically via Webhook to ${order.status}`);
+    
+    res.json({ success: true, message: 'Status updated successfully' });
+  } catch (error) {
+    console.error('Webhook Sync Error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 
 // Route for Admin to see all orders
 app.get('/api/admin/orders', async (req, res) => {
@@ -387,6 +550,10 @@ connectDB().then(async () => {
       console.log('Client disconnected from socket.io');
     });
   });
+
+  console.log("WAREHOUSE:", process.env.DELHIVERY_WAREHOUSE_NAME);
+  console.log("API URL:", process.env.DELHIVERY_API_URL);
+  console.log("TOKEN FOUND:", !!process.env.DELHIVERY_API_TOKEN);
 
   server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

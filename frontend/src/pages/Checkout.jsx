@@ -24,6 +24,16 @@ const Checkout = () => {
     pincode: ''
   });
 
+  const INDIAN_STATES = [
+    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", 
+    "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", 
+    "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", 
+    "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", 
+    "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", 
+    "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", 
+    "Ladakh", "Lakshadweep", "Puducherry"
+  ];
+
   // 1. Auto-fill saved address on page load
   useEffect(() => {
     if (user && (user.id || user._id)) {
@@ -61,6 +71,25 @@ const Checkout = () => {
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
+
+    // Validations
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(formData.phone.trim())) {
+      alert("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+
+    const pinRegex = /^\d{6}$/;
+    if (!pinRegex.test(formData.pincode.trim())) {
+      alert("Please enter a valid 6-digit pincode.");
+      return;
+    }
+
+    if (!formData.state) {
+      alert("Please select a state.");
+      return;
+    }
+
     setLoading(true);
     try {
       // If "Save Address" is checked, send to database
@@ -116,11 +145,12 @@ const Checkout = () => {
                 />
               </div>
               <input 
-                type="text" 
+                type="tel" 
                 name="phone"
-                placeholder="Contact Number" 
+                placeholder="10-Digit Contact Number" 
                 value={formData.phone} 
                 onChange={handleChange} 
+                maxLength="10"
                 required 
               />
             </div>
@@ -146,20 +176,34 @@ const Checkout = () => {
                   onChange={handleChange} 
                   required 
                 />
-                <input 
-                  type="text" 
+                <select 
                   name="state"
-                  placeholder="State" 
                   value={formData.state} 
                   onChange={handleChange} 
-                  required 
-                />
+                  style={{
+                    padding: '14px 18px',
+                    background: 'var(--bg-secondary)',
+                    color: '#fff',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '4px',
+                    outline: 'none',
+                    fontSize: '13px',
+                    letterSpacing: '1px'
+                  }}
+                  required
+                >
+                  <option value="">Select State</option>
+                  {INDIAN_STATES.map((st, idx) => (
+                    <option key={idx} value={st} style={{ background: '#1c1510' }}>{st}</option>
+                  ))}
+                </select>
                 <input 
                   type="text" 
                   name="pincode"
                   placeholder="Pincode" 
                   value={formData.pincode} 
                   onChange={handleChange} 
+                  maxLength="6"
                   required 
                 />
               </div>

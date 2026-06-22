@@ -27,13 +27,24 @@ const orderSchema = new mongoose.Schema({
     state: String,
     pincode: String
   },
-  paymentMethod: { type: String, default: 'COD' }, // COD or Online
+  paymentMethod: { type: String, default: 'COD' },
   status: { 
     type: String, 
-    enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'], 
+    enum: ['Pending', 'Confirmed', 'Processing', 'Dispatch', 'Transit', 'Shipped', 'Delivered', 'Cancelled'], 
     default: 'Pending' 
   },
+  awb: { type: String, default: null },
+  delhiveryStatus: { type: String, default: null },
+  delhiveryLabelUrl: { type: String, default: null },
+  delhiveryLogs: [
+    {
+      timestamp: { type: Date, default: Date.now },
+      status: String,
+      message: String
+    }
+  ],
   createdAt: { type: Date, default: Date.now }
+
 });
 
 module.exports = mongoose.model('Order', orderSchema);

@@ -108,7 +108,7 @@ export default function Login() {
             shape="square"
             theme="outline"
             size="large"
-            width="100%"
+            width="350"
           />
         </div>
 

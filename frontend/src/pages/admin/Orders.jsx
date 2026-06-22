@@ -33,10 +33,72 @@ const AdminOrders = () => {
     }
   };
 
+  const syncDelhiveryStatus = async (orderId) => {
+    try {
+      const res = await axios.post(`${API_URL}/admin/orders/${orderId}/delhivery-sync`);
+      if (res.data.success) {
+        alert(`Status updated to ${res.data.status} (Delhivery: ${res.data.delhiveryStatus})`);
+        fetchOrders();
+      } else {
+        alert("Failed to sync status with Delhivery");
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to sync status");
+    }
+  };
+
   if (loading) return <div className="loader-container"><div className="loader">Loading Orders...</div></div>;
 
   return (
     <div className="orders-page-container">
+      <style>{`
+        .admin-shipping-actions {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          margin-top: 8px;
+        }
+        .btn-admin-action {
+          font-size: 9px;
+          padding: 6px 10px;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          border-radius: 4px;
+          cursor: pointer;
+          text-decoration: none;
+          text-align: center;
+          font-weight: 700;
+          transition: all 0.3s;
+          display: inline-block;
+          box-sizing: border-box;
+        }
+        .btn-admin-action.print-label {
+          background: transparent;
+          border: 1px solid #ffb74d;
+          color: #ffb74d !important;
+        }
+        .btn-admin-action.print-label:hover {
+          background: #ffb74d;
+          color: #120c08 !important;
+        }
+        .btn-admin-action.sync-status {
+          background: transparent;
+          border: 1px solid #90caf9;
+          color: #90caf9 !important;
+        }
+        .btn-admin-action.sync-status:hover {
+          background: #90caf9;
+          color: #0d47a1 !important;
+        }
+        .awb-display {
+          font-size: 10px;
+          color: #ffb74d;
+          margin-top: 8px;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+          text-align: left;
+        }
+      `}</style>
       <div className="orders-header">
         <h1>CUSTOMER ORDERS</h1>
         <p>MANAGE AND TRACK ONLINE SHIPMENTS</p>
@@ -73,7 +135,7 @@ const AdminOrders = () => {
                   </td>
                   <td className="status-col">
                     <select 
-                      className={`status-select ${order.status.toLowerCase().replace(' ', '-')}`}
+                       className={`status-select ${order.status.toLowerCase().replace(' ', '-')}`}
                       value={order.status} 
                       onChange={(e) => updateStatus(order._id, e.target.value)}
                     >
@@ -85,9 +147,36 @@ const AdminOrders = () => {
                       <option value="Delivered">Delivered</option>
                       <option value="Cancelled">Cancelled</option>
                     </select>
+                    {order.awb && (
+                      <div className="awb-display">
+                        AWB: {order.awb}
+                        <br />
+                        ({order.delhiveryStatus || 'Manifested'})
+                      </div>
+                    )}
                   </td>
                   <td className="action-col">
-                    <button className="btn-view-details">DETAILS</button>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <button className="btn-view-details">DETAILS</button>
+                      {order.awb && (
+                        <div className="admin-shipping-actions">
+                          <a 
+                            href={order.delhiveryLabelUrl} 
+                            target="_blank" 
+                            rel="noreferrer" 
+                            className="btn-admin-action print-label"
+                          >
+                            Print Label
+                          </a>
+                          <button 
+                            onClick={() => syncDelhiveryStatus(order._id)} 
+                            className="btn-admin-action sync-status"
+                          >
+                            Sync Delivery
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -97,6 +186,7 @@ const AdminOrders = () => {
       )}
     </div>
   );
+
 };
 
 export default AdminOrders;
