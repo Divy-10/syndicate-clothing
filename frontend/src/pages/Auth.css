@@ -8,6 +8,7 @@
   background: var(--bg-primary);
   position: relative;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 40px 16px;
   box-sizing: border-box;
 }
@@ -270,7 +271,8 @@
 @media (max-width: 650px) {
   .auth-card:has(.luxury-signup-form) {
     padding: 36px 24px;
-    margin: 0 16px;
+    margin: 0;
+    width: 100%;
   }
   .form-row {
     grid-template-columns: 1fr;
@@ -281,7 +283,8 @@
 @media (max-width: 480px) {
   .auth-card {
     padding: 36px 20px;
-    margin: 0 16px;
+    margin: 0;
+    width: 100%;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     box-shadow: 0 10px 30px rgba(0,0,0,0.4);

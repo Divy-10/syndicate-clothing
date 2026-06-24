@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
@@ -11,6 +11,17 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const googleButtonWidth = windowWidth < 480 
+    ? Math.max(250, Math.min(windowWidth - 80, 350)).toString() 
+    : "350";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -108,7 +119,7 @@ export default function Login() {
             shape="square"
             theme="outline"
             size="large"
-            width="350"
+            width={googleButtonWidth}
           />
         </div>
 

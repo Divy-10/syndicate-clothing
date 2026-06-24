@@ -383,3 +383,125 @@
     padding: 24px 16px;
   }
 }
+
+/* Camera Scan Button */
+.pos-camera-btn {
+  background: #f1f1f1;
+  color: #111;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  padding: 0 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.pos-camera-btn:hover {
+  background: #e1e1e1;
+  border-color: #bbb;
+}
+
+/* Camera Scanner Viewfinder Modal */
+.camera-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.camera-modal {
+  background: #ffffff;
+  padding: 24px;
+  max-width: 440px;
+  width: 90%;
+  border-radius: 12px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.camera-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 12px;
+}
+
+.camera-modal-header h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #000;
+  text-transform: uppercase;
+}
+
+.camera-modal-close-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.camera-modal-close-btn:hover {
+  background-color: #f5f5f5;
+  color: #000;
+}
+
+.camera-viewfinder-container {
+  overflow: hidden;
+  border-radius: 8px;
+  background: #000;
+  border: 2px solid #000;
+  margin-bottom: 16px;
+}
+
+.camera-modal-hint {
+  text-align: center;
+  font-size: 11px;
+  color: #888;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+#reader__scan_region video {
+  object-fit: cover !important;
+}
+
+@media (max-width: 600px) {
+  .pos-scanner-form {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .pos-scanner-input {
+    flex: 1 1 50%;
+    font-size: 1rem;
+    padding: 0.8rem;
+  }
+  .pos-camera-btn {
+    padding: 0.8rem 1rem;
+  }
+  .pos-scanner-btn {
+    flex: 1 1 100%;
+    padding: 0.8rem;
+    font-size: 1rem;
+  }
+}

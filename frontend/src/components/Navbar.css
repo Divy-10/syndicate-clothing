@@ -407,3 +407,23 @@
     display: none;
   }
 }
+
+@media (max-width: 480px) {
+  .nav-logo a {
+    font-size: 13px !important;
+    letter-spacing: 1.5px !important;
+  }
+  .nav-right {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  .nav-logo a {
+    font-size: 11px !important;
+    letter-spacing: 1px !important;
+  }
+  .nav-right {
+    gap: 6px;
+  }
+}

@@ -100,25 +100,144 @@
 }
 
 @media (max-width: 768px) {
+  /* Admin Layout fixes */
   .admin-layout {
     flex-direction: column;
+    overflow-x: hidden;
   }
 
+  .admin-main {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Breadcrumb & Profile Header */
   .admin-header {
     flex-direction: column;
-    padding: 16px;
+    padding: 16px !important;
     gap: 12px;
-    align-items: flex-start;
+    align-items: stretch !important;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .admin-profile {
-    width: 100%;
+    display: flex;
     justify-content: space-between;
+    align-items: center;
+    width: 100%;
     gap: 15px;
   }
 
   .admin-content-area {
     padding: 16px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Sub-headers inside pages (like Inventory, Categories, CouponPage) */
+  .admin-main-content .admin-header,
+  .inventory-header,
+  .category-header,
+  .coupon-header,
+  .dashboard-header,
+  .messages-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 16px !important;
+    margin-bottom: 24px !important;
+    border-left: 3px solid #000 !important;
+    padding-left: 12px !important;
+    padding-right: 0 !important;
+  }
+
+  .admin-main-content .btn-luxury,
+  .dashboard-header .btn-luxury,
+  .inventory-header .btn-luxury,
+  .category-header .btn-luxury,
+  .coupon-header .btn-luxury,
+  .messages-header .btn-luxury {
+    width: 100% !important;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  /* Grids and Columns across all admin panels */
+  .kpi-grid, 
+  .analytics-grid, 
+  .dashboard-grid,
+  .coupon-grid,
+  .category-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* Ensure all tables are automatically responsive and scrollable */
+  .admin-table-wrapper,
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+  }
+
+  table.admin-table,
+  table.preview-table,
+  table.report-table {
+    width: 100% !important;
+    display: table !important; /* Keep table formatting */
+    white-space: nowrap !important;
+  }
+
+  /* Compact padding for cards on mobile */
+  .kpi-card, 
+  .analysis-box, 
+  .report-preview-container, 
+  .coupon-card, 
+  .category-card {
+    padding: 20px !important;
+  }
+
+  .kpi-card h2 {
+    font-size: 28px !important;
+  }
+
+  /* Modals (Stock update, billing, details) */
+  .stock-modal, 
+  .size-modal,
+  .bill-modal,
+  .modal-box {
+    width: 95% !important;
+    max-width: 100% !important;
+    padding: 20px !important;
+    box-sizing: border-box;
+  }
+
+  .size-stock-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 15px !important;
+  }
+
+  /* Export & filter tools wrapping */
+  .export-tool, 
+  .filter-tool,
+  .controls-header-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  .export-tool input, 
+  .filter-tool input,
+  .export-tool button,
+  .filter-tool button,
+  .search-bar-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
   }
 }
 

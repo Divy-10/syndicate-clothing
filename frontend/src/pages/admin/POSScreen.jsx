@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
+import { Html5Qrcode } from 'html5-qrcode';
+import { Camera, X } from 'lucide-react';
 import './POSScreen.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -14,38 +16,98 @@ export default function POS() {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [pendingProduct, setPendingProduct] = useState(null);
+  const [cameraActive, setCameraActive] = useState(false);
   const scannerRef = useRef(null);
+  const html5QrCodeRef = useRef(null);
 
   // Keep focus on the barcode input for scanners
   useEffect(() => {
-    if (scannerRef.current) {
+    if (scannerRef.current && !cameraActive) {
       scannerRef.current.focus();
     }
-  }, [cart, pendingProduct]);
+  }, [cart, pendingProduct, cameraActive]);
 
-  const handleScan = async (e) => {
-    e.preventDefault();
+  const lookupAndAddProduct = async (code) => {
     setError('');
     setSuccess('');
-
-    if (!barcode.trim()) return;
-
     try {
       const res = await axios.get(`${API_URL}/products`);
-      const product = res.data.find(p => p.barcodeId === barcode || p.sku === barcode || p._id === barcode);
+      const product = res.data.find(p => p.barcodeId === code || p.sku === code || p._id === code);
 
       if (!product) {
-        setError('Product not found!');
-        setBarcode('');
+        setError(`Product with barcode ${code} not found!`);
         return;
       }
 
       setPendingProduct(product);
-      setBarcode('');
+      setSuccess(`Scanned: ${product.name}`);
     } catch (err) {
       setError('Error looking up product.');
     }
   };
+
+  const handleScan = async (e) => {
+    e.preventDefault();
+    if (!barcode.trim()) return;
+    await lookupAndAddProduct(barcode);
+    setBarcode('');
+  };
+
+  const startScanning = () => {
+    setError('');
+    setSuccess('');
+    setCameraActive(true);
+  };
+
+  const stopScanning = async () => {
+    if (html5QrCodeRef.current) {
+      try {
+        if (html5QrCodeRef.current.isScanning) {
+          await html5QrCodeRef.current.stop();
+        }
+      } catch (err) {
+        console.error("Failed to stop scanner", err);
+      }
+      html5QrCodeRef.current = null;
+    }
+    setCameraActive(false);
+  };
+
+  useEffect(() => {
+    if (cameraActive) {
+      const timeoutId = setTimeout(() => {
+        const html5QrCode = new Html5Qrcode("reader");
+        html5QrCodeRef.current = html5QrCode;
+
+        html5QrCode.start(
+          { facingMode: "environment" },
+          {
+            fps: 10,
+            qrbox: { width: 260, height: 160 }
+          },
+          async (decodedText) => {
+            console.log("Scanned barcode:", decodedText);
+            await lookupAndAddProduct(decodedText);
+            stopScanning();
+          },
+          () => {
+            // ignore scan frame errors
+          }
+        ).catch(err => {
+          console.error("Error starting camera scanner", err);
+          setError("Failed to start camera. Please ensure permissions are granted.");
+          setCameraActive(false);
+        });
+      }, 300);
+
+      return () => {
+        clearTimeout(timeoutId);
+        if (html5QrCodeRef.current) {
+          html5QrCodeRef.current.stop().catch(err => console.log(err));
+        }
+      };
+    }
+  }, [cameraActive]);
 
   const addToCartWithSize = (selectedSize) => {
     const product = pendingProduct;
@@ -151,6 +213,14 @@ export default function POS() {
               onChange={(e) => setBarcode(e.target.value)}
               autoFocus
             />
+            <button 
+              type="button" 
+              className="pos-camera-btn" 
+              onClick={startScanning}
+              title="Scan barcode with camera"
+            >
+              <Camera size={18} />
+            </button>
             <button type="submit" className="pos-scanner-btn">Add</button>
           </form>
 
@@ -233,6 +303,24 @@ export default function POS() {
               })}
             </div>
             <button className="size-modal-close" onClick={() => setPendingProduct(null)}>CANCEL</button>
+          </div>
+        </div>
+      )}
+
+      {/* Camera Barcode Scanner Modal */}
+      {cameraActive && (
+        <div className="camera-modal-overlay">
+          <div className="camera-modal">
+            <div className="camera-modal-header">
+              <h3>CAMERA BARCODE SCANNER</h3>
+              <button className="camera-modal-close-btn" onClick={stopScanning}>
+                <X size={18} />
+              </button>
+            </div>
+            <div className="camera-viewfinder-container">
+              <div id="reader" style={{ width: '100%' }}></div>
+            </div>
+            <p className="camera-modal-hint">Align barcode inside the box to scan</p>
           </div>
         </div>
       )}

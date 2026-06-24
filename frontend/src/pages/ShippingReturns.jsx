@@ -10,22 +10,77 @@ const ShippingReturns = () => {
   const [formData, setFormData] = useState({
     orderId: '',
     email: '',
+    customerName: '',
+    phone: '',
+    pickupAddress: '',
+    city: '',
+    state: '',
+    pincode: '',
     productName: '',
     reason: 'size-issue',
     message: ''
   });
   const [loading, setLoading] = useState(false);
+  const [fetchingOrder, setFetchingOrder] = useState(false);
+
+  const handleLookupOrder = async () => {
+    if (!formData.orderId || !formData.email) {
+      alert("Please enter Order ID and Email Address to look up your details.");
+      return;
+    }
+    setFetchingOrder(true);
+    try {
+      const response = await axios.get(`${API_URL}/returns/lookup-order`, {
+        params: {
+          orderId: formData.orderId,
+          email: formData.email
+        }
+      });
+      const data = response.data;
+      setFormData(prev => ({
+        ...prev,
+        customerName: data.customerName,
+        phone: data.phone,
+        pickupAddress: data.pickupAddress,
+        city: data.city,
+        state: data.state,
+        pincode: data.pincode,
+        productName: data.products
+      }));
+      alert("Order details imported successfully!");
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Order not found. Please fill in details manually.");
+    } finally {
+      setFetchingOrder(false);
+    }
+  };
 
   const handleReturnSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      // Send return request to Node.js backend
-      await axios.post(`${API_URL}/returns/request`, formData);
-      alert("Your return request has been submitted. El Bro Syndicate will contact you shortly.");
-      setFormData({ orderId: '', email: '', productName: '', reason: 'size-issue', message: '' });
+      const res = await axios.post(`${API_URL}/returns/request`, formData);
+      if (res.data.awb) {
+        alert(`Your return request has been submitted. Waybill/AWB: ${res.data.awb}. Our pickup agent will visit you soon.`);
+      } else {
+        alert("Your return request has been submitted successfully for approval.");
+      }
+      setFormData({
+        orderId: '',
+        email: '',
+        customerName: '',
+        phone: '',
+        pickupAddress: '',
+        city: '',
+        state: '',
+        pincode: '',
+        productName: '',
+        reason: 'size-issue',
+        message: ''
+      });
     } catch (err) {
-      alert("Error submitting request. Please try again.");
+      alert(err.response?.data?.message || "Error submitting request. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -42,7 +97,7 @@ const ShippingReturns = () => {
           <div className="sr-divider"></div>
           <p className="sr-subtitle">Guidelines for the El Bro Syndicate experience</p>
         </header>
-
+ 
         <div className="sr-content">
           {/* POLICIES SECTION */}
           <section className="policies-grid">
@@ -82,7 +137,7 @@ const ShippingReturns = () => {
                   <label>Order ID</label>
                   <input 
                     type="text" 
-                    placeholder="e.g. SYN-12345" 
+                    placeholder="e.g. 6a256fe73c3b..." 
                     value={formData.orderId} 
                     onChange={e => setFormData({...formData, orderId: e.target.value})} 
                     required 
@@ -100,8 +155,90 @@ const ShippingReturns = () => {
                 </div>
               </div>
 
+              <button 
+                type="button" 
+                className="btn-luxury" 
+                style={{ width: '100%', marginBottom: '24px', padding: '10px' }}
+                onClick={handleLookupOrder}
+                disabled={fetchingOrder}
+              >
+                {fetchingOrder ? 'FETCHING DETAILS...' : 'AUTO-FILL FROM ORDER'}
+              </button>
+
+              <div className="portal-header" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px', marginTop: '10px' }}>
+                <h3 style={{ fontSize: '14px', letterSpacing: '2px' }}>PICKUP ADDRESS DETAILS</h3>
+                <p>Verify or fill in where Delhivery should collect the return package.</p>
+              </div>
+
+              <div className="form-row">
+                <div className="input-group">
+                  <label>Full Name</label>
+                  <input 
+                    type="text" 
+                    placeholder="Customer Name" 
+                    value={formData.customerName} 
+                    onChange={e => setFormData({...formData, customerName: e.target.value})} 
+                    required 
+                  />
+                </div>
+                <div className="input-group">
+                  <label>Phone Number</label>
+                  <input 
+                    type="tel" 
+                    placeholder="e.g. 9876543210" 
+                    value={formData.phone} 
+                    onChange={e => setFormData({...formData, phone: e.target.value})} 
+                    required 
+                  />
+                </div>
+              </div>
+
               <div className="input-group">
-                <label>Product Name</label>
+                <label>Pickup Street Address</label>
+                <input 
+                  type="text" 
+                  placeholder="Flat No, Building, Area" 
+                  value={formData.pickupAddress} 
+                  onChange={e => setFormData({...formData, pickupAddress: e.target.value})} 
+                  required 
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="input-group">
+                  <label>City</label>
+                  <input 
+                    type="text" 
+                    placeholder="City" 
+                    value={formData.city} 
+                    onChange={e => setFormData({...formData, city: e.target.value})} 
+                    required 
+                  />
+                </div>
+                <div className="input-group">
+                  <label>State</label>
+                  <input 
+                    type="text" 
+                    placeholder="State" 
+                    value={formData.state} 
+                    onChange={e => setFormData({...formData, state: e.target.value})} 
+                    required 
+                  />
+                </div>
+                <div className="input-group">
+                  <label>Pincode</label>
+                  <input 
+                    type="text" 
+                    placeholder="6-digit Pincode" 
+                    value={formData.pincode} 
+                    onChange={e => setFormData({...formData, pincode: e.target.value})} 
+                    required 
+                  />
+                </div>
+              </div>
+
+              <div className="input-group" style={{ marginTop: '10px' }}>
+                <label>Product Name (Items returning)</label>
                 <input 
                   type="text" 
                   placeholder="Which item are you returning?" 
@@ -133,7 +270,7 @@ const ShippingReturns = () => {
                 ></textarea>
               </div>
 
-              <button type="submit" className="btn-submit-return" disabled={loading}>
+              <button type="submit" className="btn-submit-return" style={{ marginTop: '20px' }} disabled={loading}>
                 {loading ? 'SUBMITTING...' : 'SUBMIT REQUEST'}
               </button>
             </form>

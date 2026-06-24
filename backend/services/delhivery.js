@@ -139,9 +139,80 @@ const getPackingSlipUrl = (awb) => {
   return `${API_URL}/api/p/packing_slip?wbns=${awb}&token=${API_TOKEN}`;
 };
 
+/**
+ * Book a return/reverse pickup shipment with Delhivery
+ * @param {Object} returnReq - Return request details containing customer pickup address
+ */
+const createReverseShipment = async (returnReq) => {
+  try {
+    const capitalize = (str) => {
+      if (!str) return '';
+      return str.trim().split(/\s+/).map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+    };
+
+    // Structure required by Delhivery: format=json&data={...}
+    const payload = {
+      shipments: [
+        {
+          name: returnReq.customerName || 'Customer',
+          add: returnReq.pickupAddress || '',
+          city: capitalize(returnReq.city),
+          state: capitalize(returnReq.state),
+          pin: returnReq.pincode || '',
+          phone: returnReq.phone || '',
+          email: returnReq.email || '',
+          country: 'India',
+          seller_name: "El Bro Syndicate",
+          waybill: "",
+          order: returnReq.orderId || `RET-${Date.now()}`,
+          payment_mode: "Pickup", // "Pickup" indicates reverse pickup/return shipment
+          cod_amount: 0,
+          total_amount: 0, 
+          pickup_location: WAREHOUSE_NAME, // Return destination (the registered warehouse)
+          products_desc: `Return: ${returnReq.productName || 'Items'}`.substring(0, 240),
+          quantity: 1,
+          weight: "0.5",
+          shipment_width: "15",
+          shipment_height: "5",
+          shipment_length: "20",
+          shipping_mode: "Surface",
+          address_type: "home",
+          order_date: new Date().toISOString()
+        }
+      ],
+      pickup_location: {
+        name: WAREHOUSE_NAME
+      }
+    };
+
+    console.log("Delhivery Reverse Shipment Payload:", JSON.stringify(payload, null, 2));
+
+    const requestBody = new URLSearchParams();
+    requestBody.append('format', 'json');
+    requestBody.append('data', JSON.stringify(payload));
+
+    const url = `${API_URL}/api/cmu/create.json`;
+    console.log(`Sending reverse shipment creation request to Delhivery: ${url}`);
+    
+    const response = await axios.post(url, requestBody.toString(), {
+      headers: getHeaders()
+    });
+
+    console.log('Delhivery Reverse API Response:', JSON.stringify(response.data));
+    return response.data;
+  } catch (error) {
+    console.error('Delhivery Reverse Shipment Creation Error:', error.response?.data || error.message);
+    return {
+      success: false,
+      error: error.response?.data || error.message
+    };
+  }
+};
+
 module.exports = {
   checkServiceability,
   createShipment,
+  createReverseShipment,
   getTrackingDetails,
   getPackingSlipUrl
 };
