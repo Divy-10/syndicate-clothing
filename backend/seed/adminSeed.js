@@ -15,16 +15,14 @@ const seedAdmin = async () => {
         phone: '+919999999999',
         gender: 'Male',
         dob: new Date('1990-01-01'),
-        isVerified: true
       });
       console.log('Default admin created: admin@syndycate.com / admin123');
     } else {
       const isMatch = await bcrypt.compare('admin123', admin.password);
-      if (!isMatch || admin.role !== 'admin' || !admin.isVerified) {
+      if (!isMatch || admin.role !== 'admin') {
         const salt = await bcrypt.genSalt(10);
         admin.password = await bcrypt.hash('admin123', salt);
         admin.role = 'admin';
-        admin.isVerified = true;
         await admin.save();
         console.log('Default admin password/role updated/ensured: admin@syndycate.com / admin123');
       } else {
