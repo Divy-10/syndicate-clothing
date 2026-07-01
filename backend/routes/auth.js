@@ -2,6 +2,8 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const OTP = require('../models/OTP');
+const nodemailer = require('nodemailer');
 const { protect } = require('../middleware/auth');
 const { OAuth2Client } = require('google-auth-library');
 
@@ -25,7 +27,47 @@ const validateEmailDomain = (emailVal) => {
   return allowedDomains.includes(domain?.toLowerCase());
 };
 
-// --- SIGNUP ROUTE (User requested) ---
+// Helper function to generate and send OTP
+const generateAndSendOTP = async (email) => {
+  const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+  
+  // Save OTP to DB (TTL handles cleanup automatically)
+  await OTP.create({ email: email.toLowerCase(), otp: otpCode });
+
+  // Send Email
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: process.env.SMTP_PORT || 587,
+        secure: process.env.SMTP_PORT == 465,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+
+      await transporter.sendMail({
+        from: `"EL BRO SYNDICATE" <${process.env.SMTP_USER}>`,
+        to: email.toLowerCase(),
+        subject: "Email Verification OTP - EL BRO SYNDICATE",
+        html: `<h3>Welcome to EL BRO SYNDICATE</h3>
+               <p>Your one-time verification code is:</p>
+               <h2 style="font-size: 32px; letter-spacing: 4px; color: #000; font-family: monospace;">${otpCode}</h2>
+               <p>This code is valid for 5 minutes. Do not share it with anyone.</p>`
+      });
+      console.log(`✉️ OTP email successfully sent to: ${email}`);
+    } catch (mailErr) {
+      console.error("❌ Mailer Error:", mailErr.message);
+    }
+  }
+
+  // Always output OTP to console for development ease
+  console.log(`[OTP DEBUG] Verification OTP for ${email}: ${otpCode}`);
+  return otpCode;
+};
+
+// --- SIGNUP ROUTE ---
 router.post('/signup', async (req, res) => {
   try {
     const { name, email, password, phone, whatsapp, gender, dob } = req.body;
@@ -39,7 +81,15 @@ router.post('/signup', async (req, res) => {
 
     // 2. Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
-    if (existingUser) return res.status(400).json({ message: "Email already registered" });
+    if (existingUser) {
+      if (existingUser.isVerified) {
+        return res.status(400).json({ message: "Email already registered" });
+      } else {
+        // Delete unverified user to start signup fresh
+        await User.deleteOne({ _id: existingUser._id });
+        await OTP.deleteMany({ email: email.toLowerCase() });
+      }
+    }
 
     // 3. Hash Password and Save
     const salt = await bcrypt.genSalt(10);
@@ -52,101 +102,185 @@ router.post('/signup', async (req, res) => {
       phone: phone || '+919999999999',
       whatsapp,
       gender: gender || 'Other',
-      dob: dob ? new Date(dob) : new Date('1990-01-01')
+      dob: dob ? new Date(dob) : new Date('1990-01-01'),
+      isVerified: false // Explicitly unverified until OTP check passes
     });
     await newUser.save();
 
-    res.status(201).json({ message: "Welcome to the Syndicate. Account created." });
+    // 4. Generate and send OTP
+    await generateAndSendOTP(email);
+
+    res.status(201).json({ 
+      success: true,
+      email: email.toLowerCase(),
+      message: "Welcome to the Syndicate. Verification OTP sent to your email." 
+    });
   } catch (err) {
     console.error("Signup Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// --- REGISTER ROUTE (Legacy and Compatibility) ---
+// --- REGISTER ROUTE (Legacy / Redirects to Signup flow) ---
 router.post('/register', async (req, res) => {
-    try {
-        const { name, email, password, phone, whatsapp, gender, dob } = req.body;
-        
-        if (!validateEmailDomain(email)) {
-            return res.status(403).json({ 
-                message: "Access Denied. Only @gmail.com and @icloud.com accounts are accepted for El Bro Syndicate membership." 
-            });
-        }
-
-        // HASH the password before saving
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        const newUser = new User({ 
-            name, 
-            email: email.toLowerCase(), 
-            password: hashedPassword,
-            phone: phone || '+919999999999',
-            whatsapp,
-            gender: gender || 'Other',
-            dob: dob ? new Date(dob) : new Date('1990-01-01')
-        });
-        await newUser.save();
-        
-        const token = generateToken(newUser);
-        res.status(201).json({ 
-            message: "User created!",
-            token,
-            user: { 
-                id: newUser._id,
-                name: newUser.name, 
-                email: newUser.email,
-                role: newUser.role 
-            }
-        });
-    } catch (err) {
-        console.error("Register Error:", err);
-        res.status(400).json({ message: "User already exists or data error" });
+  try {
+    const { name, email, password, phone, whatsapp, gender, dob } = req.body;
+    
+    if (!validateEmailDomain(email)) {
+      return res.status(403).json({ 
+        message: "Access Denied. Only @gmail.com and @icloud.com accounts are accepted for El Bro Syndicate membership." 
+      });
     }
+
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      if (existingUser.isVerified) {
+        return res.status(400).json({ message: "User already exists" });
+      } else {
+        await User.deleteOne({ _id: existingUser._id });
+        await OTP.deleteMany({ email: email.toLowerCase() });
+      }
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newUser = new User({ 
+      name, 
+      email: email.toLowerCase(), 
+      password: hashedPassword,
+      phone: phone || '+919999999999',
+      whatsapp,
+      gender: gender || 'Other',
+      dob: dob ? new Date(dob) : new Date('1990-01-01'),
+      isVerified: false
+    });
+    await newUser.save();
+    
+    await generateAndSendOTP(email);
+
+    res.status(201).json({ 
+      success: true,
+      email: email.toLowerCase(),
+      message: "User created. Verification OTP sent to your email." 
+    });
+  } catch (err) {
+    console.error("Register Error:", err);
+    res.status(400).json({ message: "User already exists or data error" });
+  }
 });
 
-// --- LOGIN ROUTE (Fixes the 401 error) ---
-router.post('/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        console.log(`Checking login for: ${email}`); // DEBUG LOG 1
+// --- VERIFY OTP ROUTE ---
+router.post('/verify-otp', async (req, res) => {
+  try {
+    const { email, otp } = req.body;
 
-        // 1. Find user (convert email to lowercase to avoid case errors)
-        const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
-
-        if (!user) {
-            console.log("❌ ERROR: User not found in Database"); // DEBUG LOG 2
-            return res.status(401).json({ message: "Invalid credentials" });
-        }
-
-        // 2. Compare hashed password
-        const isMatch = await bcrypt.compare(password, user.password);
-        console.log("Password Match Result:", isMatch); // DEBUG LOG 3
-
-        if (!isMatch) {
-            console.log("❌ ERROR: Password does not match"); // DEBUG LOG 4
-            return res.status(401).json({ message: "Invalid credentials" });
-        }
-
-        // 3. Success
-        console.log("✅ LOGIN SUCCESSFUL");
-        const token = generateToken(user);
-        res.json({ 
-            success: true, 
-            token, 
-            user: { 
-                id: user._id,
-                name: user.name, 
-                email: user.email,
-                role: user.role 
-            } 
-        });
-
-    } catch (error) {
-        console.error("SERVER ERROR:", error);
-        res.status(500).json({ message: "Internal Server Error" });
+    if (!email || !otp) {
+      return res.status(400).json({ message: "Email and OTP are required" });
     }
+
+    const otpRecord = await OTP.findOne({ email: email.toLowerCase(), otp: otp.trim() });
+    if (!otpRecord) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.isVerified = true;
+    await user.save();
+
+    // Clean up OTPs
+    await OTP.deleteMany({ email: email.toLowerCase() });
+
+    res.status(200).json({ 
+      success: true, 
+      message: "Email verified successfully! You can now log in." 
+    });
+  } catch (err) {
+    console.error("Verify OTP Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// --- RESEND OTP ROUTE ---
+router.post('/resend-otp', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: "Email is already verified" });
+    }
+
+    // Clean up old OTPs and send new one
+    await OTP.deleteMany({ email: email.toLowerCase() });
+    await generateAndSendOTP(email);
+
+    res.status(200).json({ success: true, message: "Verification OTP resent successfully!" });
+  } catch (err) {
+    console.error("Resend OTP Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// --- LOGIN ROUTE ---
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    console.log(`Checking login for: ${email}`);
+
+    // 1. Find user
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+
+    if (!user) {
+      console.log("❌ ERROR: User not found in Database");
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Check if verified
+    if (!user.isVerified) {
+      console.log("❌ ERROR: Email not verified");
+      return res.status(403).json({ message: "Please verify your email address to log in." });
+    }
+
+    // 2. Compare hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log("Password Match Result:", isMatch);
+
+    if (!isMatch) {
+      console.log("❌ ERROR: Password does not match");
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // 3. Success
+    console.log("✅ LOGIN SUCCESSFUL");
+    const token = generateToken(user);
+    res.json({ 
+      success: true, 
+      token, 
+      user: { 
+        id: user._id,
+        name: user.name, 
+        email: user.email,
+        role: user.role 
+      } 
+    });
+
+  } catch (error) {
+    console.error("SERVER ERROR:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 });
 
 // GET /api/auth/me — Get current user from token
