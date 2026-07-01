@@ -92,7 +92,7 @@ app.post('/api/orders/place', async (req, res) => {
   console.log("--- NEW ORDER REQUEST RECEIVED ---");
   console.log("Data:", req.body); 
   try {
-    const { userId, items, totalAmount, shippingAddress, couponCode, discountAmount } = req.body;
+    const { userId, items, totalAmount, shippingAddress, couponCode, discountAmount, paymentMethod } = req.body;
 
     // 1. Basic Validation
     if (!userId || !items || items.length === 0) {
@@ -108,7 +108,7 @@ app.post('/api/orders/place', async (req, res) => {
       shippingAddress,
       couponCode,
       discountAmount: discountAmount || 0,
-      paymentMethod: 'Prepaid'
+      paymentMethod: paymentMethod || 'COD'
     });
 
     const savedOrder = await newOrder.save();

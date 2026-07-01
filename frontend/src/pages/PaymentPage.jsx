@@ -83,7 +83,8 @@ const PaymentPage = () => {
         totalAmount: grandTotal,
         couponCode: appliedCoupon ? appliedCoupon.code : undefined,
         discountAmount: discountAmount,
-        shippingAddress: address
+        shippingAddress: address,
+        paymentMethod: 'COD'
       };
 
       console.log("Order Request Received:", orderData); // DEBUG LOG
