@@ -14,7 +14,7 @@ if %errorlevel% equ 0 (
     if not exist "%~dp0scratch\mongodb-data" (
         mkdir "%~dp0scratch\mongodb-data"
     )
-    start "MongoDB Server" cmd /c "mongod --dbpath ^"%~dp0scratch\mongodb-data^""
+    start "MongoDB Server" cmd /c mongod --dbpath "%~dp0scratch\mongodb-data"
     echo [INFO] Waiting for MongoDB to initialize...
     timeout /t 5 >nul
 )

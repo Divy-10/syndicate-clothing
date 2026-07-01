@@ -85,6 +85,7 @@ app.use('/api/contact', require('./routes/contact'));
 app.use('/api/returns', require('./routes/returns'));
 app.use('/api/address', require('./routes/address'));
 app.use('/api/coupons', require('./routes/coupons'));
+app.use('/api/payment', require('./routes/payment'));
 
 // --- ORDER ROUTE (Fixes the 404 error) ---
 app.post('/api/orders/place', async (req, res) => {
