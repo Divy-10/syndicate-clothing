@@ -2,8 +2,6 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
-const OTP = require('../models/OTP');
-const sms = require('../services/sms');
 const { protect } = require('../middleware/auth');
 const { OAuth2Client } = require('google-auth-library');
 
@@ -27,68 +25,16 @@ const validateEmailDomain = (emailVal) => {
   return allowedDomains.includes(domain?.toLowerCase());
 };
 
-// --- SEND OTP ROUTE ---
-router.post('/send-otp', async (req, res) => {
-  try {
-    const { phone } = req.body;
-    if (!phone) {
-      return res.status(400).json({ message: "Phone number is required" });
-    }
-
-    const cleanPhone = phone.trim();
-
-    // Check if phone number is already registered
-    const existingUser = await User.findOne({ phone: cleanPhone });
-    if (existingUser) {
-      return res.status(400).json({ message: "Phone number is already registered" });
-    }
-
-    // Generate a 6-digit random OTP
-    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // Delete any existing OTP for this phone first
-    await OTP.deleteMany({ phone: cleanPhone });
-
-    // Save the new OTP to database
-    await OTP.create({
-      phone: cleanPhone,
-      otp: generatedOtp
-    });
-
-    // Send the OTP via SMS service
-    await sms.sendOTP(cleanPhone, generatedOtp);
-
-    res.status(200).json({ success: true, message: "Verification code sent successfully" });
-  } catch (err) {
-    console.error("Send OTP Error:", err);
-    res.status(500).json({ message: "Failed to send verification code", error: err.message });
-  }
-});
-
 // --- SIGNUP ROUTE (User requested) ---
 router.post('/signup', async (req, res) => {
   try {
-    const { name, email, password, phone, whatsapp, gender, dob, otp } = req.body;
+    const { name, email, password, phone, whatsapp, gender, dob } = req.body;
 
     // 1. STRICT DOMAIN CHECK
     if (!validateEmailDomain(email)) {
       return res.status(403).json({ 
         message: "Access Denied. Only @gmail.com and @icloud.com accounts are accepted for El Bro Syndicate membership." 
       });
-    }
-
-    if (!phone) {
-      return res.status(400).json({ message: "Phone number is required" });
-    }
-
-    if (!otp) {
-      return res.status(400).json({ message: "Verification code (OTP) is required" });
-    }
-
-    // Verify OTP
-    const otpRecord = await OTP.findOne({ phone: phone.trim(), otp: otp.trim() });
-    if (!otpRecord) {
-      return res.status(400).json({ message: "Invalid or expired verification code (OTP)" });
     }
 
     // 2. Check if user already exists
@@ -103,15 +49,12 @@ router.post('/signup', async (req, res) => {
       name, 
       email: email.toLowerCase(), 
       password: hashedPassword,
-      phone: phone.trim(),
+      phone: phone || '+919999999999',
       whatsapp,
       gender: gender || 'Other',
       dob: dob ? new Date(dob) : new Date('1990-01-01')
     });
     await newUser.save();
-
-    // Delete verified OTP record
-    await OTP.deleteOne({ _id: otpRecord._id });
 
     res.status(201).json({ message: "Welcome to the Syndicate. Account created." });
   } catch (err) {
@@ -123,26 +66,12 @@ router.post('/signup', async (req, res) => {
 // --- REGISTER ROUTE (Legacy and Compatibility) ---
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, password, phone, whatsapp, gender, dob, otp } = req.body;
+        const { name, email, password, phone, whatsapp, gender, dob } = req.body;
         
         if (!validateEmailDomain(email)) {
             return res.status(403).json({ 
                 message: "Access Denied. Only @gmail.com and @icloud.com accounts are accepted for El Bro Syndicate membership." 
             });
-        }
-
-        if (!phone) {
-            return res.status(400).json({ message: "Phone number is required" });
-        }
-
-        if (!otp) {
-            return res.status(400).json({ message: "Verification code (OTP) is required" });
-        }
-
-        // Verify OTP
-        const otpRecord = await OTP.findOne({ phone: phone.trim(), otp: otp.trim() });
-        if (!otpRecord) {
-            return res.status(400).json({ message: "Invalid or expired verification code (OTP)" });
         }
 
         // HASH the password before saving
@@ -153,16 +82,13 @@ router.post('/register', async (req, res) => {
             name, 
             email: email.toLowerCase(), 
             password: hashedPassword,
-            phone: phone.trim(),
+            phone: phone || '+919999999999',
             whatsapp,
             gender: gender || 'Other',
             dob: dob ? new Date(dob) : new Date('1990-01-01')
         });
         await newUser.save();
         
-        // Delete verified OTP record
-        await OTP.deleteOne({ _id: otpRecord._id });
-
         const token = generateToken(newUser);
         res.status(201).json({ 
             message: "User created!",

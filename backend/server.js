@@ -52,15 +52,7 @@ app.set('io', io);
 // Middleware
 app.use(cors({
   origin: function(origin, callback) {
-    console.log("Incoming Origin:", origin);
-
-    if (!origin) return callback(null, true);
-
-    if (!allowedOrigins.includes(origin)) {
-      console.log("Blocked Origin:", origin);
-      return callback(new Error("The CORS policy for this site does not allow access from the specified Origin."));
-    }
-
+    // Automatically allow any incoming origin (essential for tunnels/local sharing)
     callback(null, true);
   },
   credentials: true
@@ -314,24 +306,57 @@ app.get('/api/admin/orders', async (req, res) => {
 const getAdminStats = async (req, res) => {
   try {
     const now = new Date();
+
+    const netAmountExpr = {
+      $max: [
+        0,
+        {
+          $subtract: [
+            {
+              $reduce: {
+                input: "$items",
+                initialValue: 0,
+                in: { $add: ["$$value", { $multiply: ["$$this.price", "$$this.qty"] }] }
+              }
+            },
+            { $ifNull: ["$discountAmount", 0] }
+          ]
+        }
+      ]
+    };
     
     // 1. Total Revenue & Total Orders
     const totalStats = await Order.aggregate([
-      { $group: { _id: null, revenue: { $sum: "$totalAmount" }, count: { $sum: 1 } } }
+      {
+        $project: {
+          netAmount: netAmountExpr
+        }
+      },
+      { $group: { _id: null, revenue: { $sum: "$netAmount" }, count: { $sum: 1 } } }
     ]);
 
     // 2. Monthly Revenue (Last 30 Days)
     const thirtyDaysAgo = new Date(new Date().setDate(now.getDate() - 30));
     const monthlyStats = await Order.aggregate([
       { $match: { createdAt: { $gte: thirtyDaysAgo } } },
-      { $group: { _id: null, revenue: { $sum: "$totalAmount" } } }
+      {
+        $project: {
+          netAmount: netAmountExpr
+        }
+      },
+      { $group: { _id: null, revenue: { $sum: "$netAmount" } } }
     ]);
 
     // 3. Weekly Revenue (Last 7 Days)
     const sevenDaysAgo = new Date(new Date().setDate(now.getDate() - 7));
     const weeklyStats = await Order.aggregate([
       { $match: { createdAt: { $gte: sevenDaysAgo } } },
-      { $group: { _id: null, revenue: { $sum: "$totalAmount" } } }
+      {
+        $project: {
+          netAmount: netAmountExpr
+        }
+      },
+      { $group: { _id: null, revenue: { $sum: "$netAmount" } } }
     ]);
 
     res.json({
@@ -351,9 +376,32 @@ app.post('/api/admin/stats', getAdminStats);
 
 app.get('/api/admin/full-report', async (req, res) => {
   try {
+    const netAmountExpr = {
+      $max: [
+        0,
+        {
+          $subtract: [
+            {
+              $reduce: {
+                input: "$items",
+                initialValue: 0,
+                in: { $add: ["$$value", { $multiply: ["$$this.price", "$$this.qty"] }] }
+              }
+            },
+            { $ifNull: ["$discountAmount", 0] }
+          ]
+        }
+      ]
+    };
+
     // 1. Total Revenue and Orders
     const generalStats = await Order.aggregate([
-      { $group: { _id: null, totalRev: { $sum: "$totalAmount" }, totalOrders: { $sum: 1 } } }
+      {
+        $project: {
+          netAmount: netAmountExpr
+        }
+      },
+      { $group: { _id: null, totalRev: { $sum: "$netAmount" }, totalOrders: { $sum: 1 } } }
     ]);
 
     // 2. Top Selling Products (Count occurrences of each productId)
@@ -389,17 +437,45 @@ app.get('/api/admin/full-report', async (req, res) => {
 app.get('/api/admin/dashboard-data', async (req, res) => {
   try {
     const now = new Date();
+
+    const netAmountExpr = {
+      $max: [
+        0,
+        {
+          $subtract: [
+            {
+              $reduce: {
+                input: "$items",
+                initialValue: 0,
+                in: { $add: ["$$value", { $multiply: ["$$this.price", "$$this.qty"] }] }
+              }
+            },
+            { $ifNull: ["$discountAmount", 0] }
+          ]
+        }
+      ]
+    };
     
     // General Stats
     const generalStats = await Order.aggregate([
-      { $group: { _id: null, totalRev: { $sum: "$totalAmount" }, totalOrders: { $sum: 1 } } }
+      {
+        $project: {
+          netAmount: netAmountExpr
+        }
+      },
+      { $group: { _id: null, totalRev: { $sum: "$netAmount" }, totalOrders: { $sum: 1 } } }
     ]);
 
     // Monthly/Weekly
     const thirtyDaysAgo = new Date(new Date().setDate(now.getDate() - 30));
     const monthlyStats = await Order.aggregate([
       { $match: { createdAt: { $gte: thirtyDaysAgo } } },
-      { $group: { _id: null, revenue: { $sum: "$totalAmount" } } }
+      {
+        $project: {
+          netAmount: netAmountExpr
+        }
+      },
+      { $group: { _id: null, revenue: { $sum: "$netAmount" } } }
     ]);
 
     // Top Products
@@ -451,13 +527,16 @@ app.get('/api/admin/report-preview', async (req, res) => {
     }).populate('userId');
 
     // Map the data to a clean format for the table
-    const reportData = orders.map(order => ({
-      orderId: order._id,
-      customer: order.userId?.name || 'Guest',
-      total: order.totalAmount,
-      status: order.status,
-      date: order.createdAt.toLocaleDateString()
-    }));
+    const reportData = orders.map(order => {
+      const itemsTotal = Math.max(0, order.items.reduce((sum, item) => sum + (item.price * item.qty), 0) - (order.discountAmount || 0));
+      return {
+        orderId: order._id,
+        customer: order.userId?.name || 'Guest',
+        total: itemsTotal,
+        status: order.status,
+        date: order.createdAt.toLocaleDateString()
+      };
+    });
 
     res.json(reportData);
   } catch (err) {
@@ -485,13 +564,16 @@ app.get('/api/admin/print-report', async (req, res) => {
       createdAt: { $gte: startDate, $lte: endDate }
     }).populate('userId');
 
-    const formattedData = orders.map(order => ({
-      orderId: order._id.toString(),
-      customer: order.userId?.name || 'Guest',
-      total: order.totalAmount,
-      status: order.status,
-      date: order.createdAt.toLocaleDateString()
-    }));
+    const formattedData = orders.map(order => {
+      const itemsTotal = Math.max(0, order.items.reduce((sum, item) => sum + (item.price * item.qty), 0) - (order.discountAmount || 0));
+      return {
+        orderId: order._id.toString(),
+        customer: order.userId?.name || 'Guest',
+        total: itemsTotal,
+        status: order.status,
+        date: order.createdAt.toLocaleDateString()
+      };
+    });
 
     res.json(formattedData);
   } catch (err) {
