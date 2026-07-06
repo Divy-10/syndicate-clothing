@@ -613,6 +613,10 @@ app.get('/api/orders/user/:userId', async (req, res) => {
 
 
 // Health check
+app.get('/health', (req, res) => {
+  res.send('ok');
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
@@ -640,5 +644,25 @@ connectDB().then(async () => {
 
   server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    
+    // Self-ping logic to keep backend awake (every 14 minutes)
+    const axios = require('axios');
+    const pingSelf = async () => {
+      const backendUrl = process.env.BACKEND_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+      try {
+        const response = await axios.get(`${backendUrl}/health`);
+        console.log(`[Self-Ping] Successfully pinged health endpoint at ${backendUrl}/health. Status: ${response.status} (${response.data})`);
+      } catch (error) {
+        console.error(`[Self-Ping] Error pinging health endpoint at ${backendUrl}/health:`, error.message);
+      }
+    };
+    
+    // Initial ping after 10 seconds to verify setup
+    setTimeout(pingSelf, 10000);
+    
+    // Interval for 14 minutes
+    const FOURTEEN_MINUTES = 14 * 60 * 1000;
+    setInterval(pingSelf, FOURTEEN_MINUTES);
   });
 });
+
