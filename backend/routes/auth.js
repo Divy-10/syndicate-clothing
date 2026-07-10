@@ -20,9 +20,7 @@ const generateToken = (user) => {
 
 // Helper function to validate email domain
 const validateEmailDomain = (emailVal) => {
-  const allowedDomains = ['gmail.com', 'icloud.com'];
-  const domain = emailVal?.split('@')[1];
-  return allowedDomains.includes(domain?.toLowerCase());
+  return true;
 };
 
 // --- SIGNUP ROUTE (User requested) ---
@@ -238,14 +236,7 @@ router.post('/google-login', async (req, res) => {
 
         const { email, name, sub } = payload;
 
-        // Apply strict domain filter to google login too
-        const allowedDomains = ['gmail.com', 'icloud.com'];
-        const domain = email?.split('@')[1];
-        if (!allowedDomains.includes(domain?.toLowerCase())) {
-            return res.status(403).json({ 
-                message: "Access Denied. Only @gmail.com and @icloud.com accounts are accepted for El Bro Syndicate membership." 
-            });
-        }
+
 
         // Check if user already exists
         let user = await User.findOne({ email: email.toLowerCase() });

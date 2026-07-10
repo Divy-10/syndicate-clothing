@@ -21,9 +21,7 @@ export default function Signup() {
 
   // VALIDATION: Ensure email is only @gmail.com or @icloud.com
   const isValidEmail = (emailVal) => {
-    const allowedDomains = ['gmail.com', 'icloud.com'];
-    const domain = emailVal.split('@')[1];
-    return allowedDomains.includes(domain?.toLowerCase());
+    return true;
   };
 
   const handleSignup = async (e) => {
