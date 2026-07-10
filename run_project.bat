@@ -23,6 +23,10 @@ if %errorlevel% equ 0 (
 echo [INFO] Starting Backend Server...
 start "Backend Server" cmd /c "cd /d %~dp0backend && npm run dev"
 
+:: Start Cloudflare Tunnel
+echo [INFO] Starting Cloudflare Tunnel...
+start "Cloudflare Tunnel" cmd /c "%~dp0cloudflared.exe tunnel --url http://localhost:5005"
+
 :: Start Frontend Server
 echo [INFO] Starting Frontend Dev Server...
 start "Frontend Server" cmd /c "cd /d %~dp0frontend && npm run dev"

@@ -3,6 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const seedAdmin = require('./seed/adminSeed');
+const seedProducts = require('./seed/productSeed');
 const path = require('path');
 
 const fs = require('fs');
@@ -630,6 +631,7 @@ const PORT = process.env.PORT || 5000;
 // Connect to DB, seed admin, then start server
 connectDB().then(async () => {
   await seedAdmin();
+  await seedProducts();
 
   io.on('connection', (socket) => {
     console.log('Client connected to socket.io');
