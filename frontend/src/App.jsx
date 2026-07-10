@@ -194,7 +194,7 @@ function AppRoutes() {
 }
 
 export default function App() {
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "377184797925-stu7djfukq2ejhiddni8hc0n9sg02abu.apps.googleusercontent.com";
+  const googleClientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID || "377184797925-stu7djfukq2ejhiddni8hc0n9sg02abu.apps.googleusercontent.com").trim();
 
   return (
     <GoogleOAuthProvider clientId={googleClientId}>

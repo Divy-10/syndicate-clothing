@@ -4,8 +4,8 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const { protect } = require('../middleware/auth');
 const { OAuth2Client } = require('google-auth-library');
-
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const googleClientId = process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.trim() : '';
+const client = new OAuth2Client(googleClientId);
 
 const router = express.Router();
 
@@ -215,13 +215,13 @@ router.put('/profile', protect, async (req, res) => {
 router.post('/google-login', async (req, res) => {
     try {
         const { token } = req.body;
-        console.log("DEBUG: Loaded GOOGLE_CLIENT_ID in backend:", process.env.GOOGLE_CLIENT_ID);
+        console.log("DEBUG: Loaded GOOGLE_CLIENT_ID in backend:", googleClientId);
 
         
         let payload;
         
         // Support fallback mock validation if client ID is mock or not specified
-        if (!process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID.startsWith('mock-')) {
+        if (!googleClientId || googleClientId.startsWith('mock-')) {
             console.log("ℹ️ MOCK GOOGLE LOGIN ACTIVE");
             payload = {
                 email: 'google-client@gmail.com',
@@ -231,7 +231,7 @@ router.post('/google-login', async (req, res) => {
         } else {
             const ticket = await client.verifyIdToken({
                 idToken: token,
-                audience: process.env.GOOGLE_CLIENT_ID,
+                audience: googleClientId,
             });
             payload = ticket.getPayload();
         }
